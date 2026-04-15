@@ -1,23 +1,44 @@
-import { DataProvider, GetListParams, GetListResponse, BaseRecord } from "@refinedev/core";
-import { API_URL } from "./constants";
-import { mockSubjects } from "@/constants/mock-data";
+import { ListResponse } from "@/types";
+import { CreateDataProviderOptions, createDataProvider } from "@refinedev/rest";
+import { BACKEND_BASE_URL } from "@/constants";
 
+const options: CreateDataProviderOptions = {
+    getList: {
+      getEndpoint: ({resource}) => resource,
 
-export const  dataProvider: DataProvider  = {
-  getList: async <TData extends BaseRecord = BaseRecord>({ resource}:
-    GetListParams) : Promise<GetListResponse<TData>> => {
-      if (resource !== 'subjects') return { data: [] as TData[], total: 0 };
+      buildQueryParams: async ({filters, pagination, resource}) => {
+        const page = pagination?.currentPage ?? 1;
+        const pageSize = pagination?.pageSize ?? 10;
+      
+        const params: Record<string, string|number> = { page, limit: pageSize };
 
-      return{
-        data: mockSubjects as unknown as TData[],
-        total: mockSubjects.length,
-      }
-    },
-  
-    getOne: async () => {throw new Error("This function is not present in mock")},
-    create: async () => {throw new Error("This function is not present in mock")},
-    update: async () => {throw new Error("This function is not present in mock")},
-    deleteOne: async () => {throw new Error("This function is not present in mock")},
+        filters?.forEach(filter => {
+          const field = 'field' in filter ? filter.field : '';
 
-    getApiUrl: () => ''
+          const value = String(filter.value);
+
+          if (resource === 'subjects'){
+            if (field === 'department') params.department = value;
+            if (field === 'name' || field === 'code') params.search = value;
+          }
+        })
+
+        return params;
+      },
+
+      mapResponse: async (response) => {
+        const payLoad: ListResponse = await response.json();
+       
+        return payLoad.data ?? [];
+      },
+
+    getTotalCount: async (response) => {
+      const payLoad: ListResponse = await response.json();
+      return payLoad.pagination?.total ?? payLoad.data?.length ?? 0;
+    } 
+  }
 }
+  
+  const {dataProvider} = createDataProvider(BACKEND_BASE_URL, options);
+
+  export {dataProvider};
