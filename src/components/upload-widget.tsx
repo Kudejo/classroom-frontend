@@ -29,7 +29,7 @@ const uploadWidget = ({value = null, onChange, disabled = false}) => {
                 cloudName: CLOUDINARY_CLOUD_NAME,
                 uploadPreset: CLOUDINARY_UPLOAD_PRESET,   
                 multiple: false,
-                Folder: 'uploads',
+                folder: 'uploads',
                 maxFileSize: 5 * 1024 * 1024, // 5MB
                 clientAllowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
             }, (error, result) => {
@@ -40,7 +40,7 @@ const uploadWidget = ({value = null, onChange, disabled = false}) => {
                     }
                     setPreview(payload);
                  
-                    onChangeRef.current(payload);
+                    onChangeRef.current?.(payload);
                 }
                 
             });
