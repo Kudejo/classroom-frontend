@@ -67,7 +67,7 @@ const {query: subjectsQuery} = useList<Subject>({
 });
 
 const {query: teachersQuery} = useList<User>({
-  resource: 'Users',
+  resource: 'users',
   filters:[
     {field: 'role', operator: 'eq', value: 'teacher'},
 ],
@@ -214,7 +214,8 @@ const setBannerImage = (file: any, field: any) => {
                                                 <Select
                                                     onValueChange={field.onChange}
                                                     value={field.value}
-                                                >   disabled={teachersLoading}
+                                                    disabled={teachersLoading}
+                                                >
                                                     <FormControl>
                                                         <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Select a teacher" />
