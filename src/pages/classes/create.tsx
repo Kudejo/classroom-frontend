@@ -1,6 +1,6 @@
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb"
 import { CreateView } from "@/components/refine-ui/views/create-view.tsx"
-import { useBack } from "@refinedev/core";
+import { useBack, useList } from "@refinedev/core";
 import { Button } from "@/components/ui/button.tsx";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
@@ -32,6 +32,7 @@ import {Label} from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea";
 import {Loader2} from "lucide-react";
 import UploadWidget from "@/components/upload-widget.tsx";
+import { User, Subject } from "@/types";
 
 const Create = () => {
   const back = useBack();
@@ -44,28 +45,42 @@ const Create = () => {
     }
   });
 
-  const { handleSubmit, formState: { isSubmitting, errors }, control } = form;
+  const { 
+    refineCore: { onFinish },
+    handleSubmit, 
+    formState: { isSubmitting, errors }, control } = form;
 
-  const onSubmit = (values: Z.infer<typeof classSchema>) => {
+  const onSubmit = async (values: Z.infer<typeof classSchema>) => {
     try {
+        await onFinish(values);
       console.log(values);
     } catch (error) {
       console.error("Error creating class:", error);
     }
   }
 
- const teachers = [
-  { id: 1, name: "John Smith" },
-  { id: 2, name: "Sarah Johnson" },
-  { id: 3, name: "Michael Davis" },
-];
+const {query: subjectsQuery} = useList<Subject>({
+  resource: 'subjects',
+  pagination: {
+    pageSize: 100,
+  }
+});
 
- const subjects = [
-  { id: 1, name: "Mathematics", code: "MAT" },
-  { id: 2, name: "Physics", code: "PHY" },
-  { id: 3, name: "Chemistry", code: "CHM" },
-  { id: 4, name: "Computer Science", code: "CS" },
-];
+const {query: teachersQuery} = useList<User>({
+  resource: 'Users',
+  filters:[
+    {field: 'role', operator: 'eq', value: 'teacher'},
+],
+  pagination: {
+    pageSize: 100,
+  }
+});
+
+const subject = subjectsQuery?.data?.data || [];
+const SubjectsLoading = subjectsQuery.isLoading;
+
+const teachers = teachersQuery?.data?.data || [];
+const teachersLoading = teachersQuery.isLoading;
 
 const bannerPublicId = form.watch("bannerCldPubId");
 
@@ -165,6 +180,7 @@ const setBannerImage = (file: any, field: any) => {
                                                         field.onChange(Number(value))
                                                     }
                                                     value={field.value?.toString()}
+                                                    disabled={SubjectsLoading}
                                                 >
                                                     <FormControl>
                                                         <SelectTrigger className="w-full">
@@ -172,7 +188,7 @@ const setBannerImage = (file: any, field: any) => {
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {subjects.map((subject) => (
+                                                        {subject.map((subject) => (
                                                             <SelectItem
                                                                 key={subject.id}
                                                                 value={subject.id.toString()}
@@ -198,7 +214,7 @@ const setBannerImage = (file: any, field: any) => {
                                                 <Select
                                                     onValueChange={field.onChange}
                                                     value={field.value}
-                                                >
+                                                >   disabled={teachersLoading}
                                                     <FormControl>
                                                         <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Select a teacher" />
