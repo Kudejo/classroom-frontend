@@ -48,7 +48,7 @@ const Show = () => {
  
 
         <div className='banner'>
-            {bannerUrl ? (<AdvancedImage alt="Class Banner" cldImg={bannerPhoto(bannerCldPubId ?? '', name)} />) : <div className='placeholder'/>}
+            {bannerCldPubId ? (<AdvancedImage alt="Class Banner" cldImg={bannerPhoto(bannerCldPubId, name)} />) : <div className='placeholder'/>}
         </div>
 
         <Card className="details-card">
@@ -106,7 +106,7 @@ const Show = () => {
                     <ol>
                         <li>Ask your teacher for the invite code</li>
                         <li>Click on the "Join Class" button</li>
-                        <li>paste the invite code and click join</li>
+                        <li>Paste the invite code and click join</li>
                     </ol>
                 </div>
 

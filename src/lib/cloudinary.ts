@@ -10,6 +10,13 @@ import { Position } from "@cloudinary/url-gen/qualifiers/position";
 
 import { CLOUDINARY_CLOUD_NAME } from "@/constants";
 
+// Validate Cloudinary configuration before initialization
+if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME.trim() === "") {
+  throw new Error(
+    "Cloudinary cloud name is not configured. Please set VITE_CLOUDINARY_CLOUD_NAME environment variable."
+  );
+}
+
 // Cloudinary instance.
 const cld = new Cloudinary({
   cloud: {
